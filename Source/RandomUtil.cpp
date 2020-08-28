@@ -4,7 +4,7 @@
 
 RandomUtil::RandomUtil()
 {
-    generator.seed(std::time(0));
+    generator.seed((int)std::time(0));
 }
 
 int RandomUtil::getRandom(int a, int b)
