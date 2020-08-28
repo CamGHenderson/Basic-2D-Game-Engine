@@ -13,7 +13,7 @@ const char* Engine::run()
 	std::thread runThread(&Engine::applicationThread, this);
 
 	const char* exit;
-	
+
 	while (true)
 	{
 		if ((exit = getRendererExit()) != "")

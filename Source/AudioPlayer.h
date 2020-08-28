@@ -24,8 +24,10 @@ public:
 	void resumeMusic();
 	void pauseMusic();
 	void stopMusic();
+	void setMusicVolume(int volume);
 	Mix_Chunk* loadSound(const char* file);
 	void playSound(Mix_Chunk* music);
+	void setSoundVolume(Mix_Chunk* sound, int volume);
 	void cleanUp();
 	const char* getError() { return error; }
 };

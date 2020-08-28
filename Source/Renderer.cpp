@@ -12,6 +12,7 @@ Renderer::Renderer()
 	rRunning = false;
 	rExit = "";
 	rRenderer = NULL;
+	rController = new ControllerInput();
 	rDeltaTime = 0;
 	rRectBuffer = SDL_Rect();
 	rCamera = NULL;
@@ -47,6 +48,12 @@ void Renderer::runRenderer()
 		rExit = "SDL Image Failed To Initialize.";
 		return;
 	}
+	
+	if (TTF_Init() == -1)
+	{
+		rExit = "SDL Text Failed To Initialize";
+		return;
+	}
 
 	if (!onCreate())
 		rRunning = false;
@@ -63,6 +70,9 @@ void Renderer::runRenderer()
 			case SDL_QUIT:
 				rRunning = false;
 				break;
+			case SDL_JOYAXISMOTION:
+				rController->update(rEvent);
+				break;
 			default:
 				break;
 			}
@@ -74,6 +84,7 @@ void Renderer::runRenderer()
 			rRunning = false;
 		lastTime = time;
 		SDL_RenderPresent(rRenderer);
+		rController->controllerUpdate();
 	}
 
 	for (SDL_Texture* texture : rTextures)
@@ -82,13 +93,21 @@ void Renderer::runRenderer()
 		texture = NULL;
 	}
 
+	for (TTF_Font* font : rFonts)
+	{
+		TTF_CloseFont(font);
+		font = NULL;
+	}
+
 	SDL_DestroyRenderer(rRenderer);
-	SDL_DestroyWindow(rWindow);
 	rRenderer = NULL;
+	SDL_DestroyWindow(rWindow);
 	rWindow = NULL;
 
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
+	rController->destroy();
 
 	onExit();
 	rExit = "Program Exited Without Errors";
@@ -195,6 +214,31 @@ SDL_Texture* Renderer::loadTexture(const char* file, Color bg)
 		return NULL;
 
 	SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, bg.red, bg.green, bg.blue));
+
+	texture = SDL_CreateTextureFromSurface(rRenderer, loadedSurface);
+	if (!texture)
+		return NULL;
+	rTextures.push_back(texture);
+
+	SDL_FreeSurface(loadedSurface);
+
+	return texture;
+}
+
+TTF_Font* Renderer::loadFont(const char* file, int size)
+{
+	TTF_Font* font = TTF_OpenFont(file, size);
+	rFonts.push_back(font);
+	return font;
+}
+
+SDL_Texture* Renderer::loadTextureFromText(const char* text, TTF_Font* font, Color color)
+{
+	SDL_Texture* texture = NULL;
+
+	SDL_Surface* loadedSurface = TTF_RenderText_Solid(font, text, SDL_Color{ (Uint8)color.red, (Uint8)color.green, (Uint8)color.blue, 255 });
+	if (!loadedSurface)
+		return NULL;
 
 	texture = SDL_CreateTextureFromSurface(rRenderer, loadedSurface);
 	if (!texture)

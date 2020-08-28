@@ -61,6 +61,11 @@ void AudioPlayer::stopMusic()
 	Mix_HaltMusic();
 }
 
+void AudioPlayer::setMusicVolume(int volume)
+{
+	Mix_VolumeMusic(volume);
+}
+
 Mix_Chunk* AudioPlayer::loadSound(const char* file)
 {
 	Mix_Chunk* s = Mix_LoadWAV(file);
@@ -71,6 +76,11 @@ Mix_Chunk* AudioPlayer::loadSound(const char* file)
 void AudioPlayer::playSound(Mix_Chunk* music)
 {
 	Mix_PlayChannel(-1 , music, 0);
+}
+
+void AudioPlayer::setSoundVolume(Mix_Chunk* sound, int volume)
+{
+	Mix_VolumeChunk(sound, volume);
 }
 
 void AudioPlayer::cleanUp()

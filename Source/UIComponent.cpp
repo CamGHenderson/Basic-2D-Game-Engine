@@ -1,5 +1,7 @@
 #include "UIComponent.h"
 
+#include<cmath>
+
 UIComponent::UIComponent(SDL_Texture* texture, int x, int y)
 {
 	cTexture = texture;
@@ -34,6 +36,6 @@ void UIComponent::setScale(float x, float y)
 	sx = x;
 	sy = y;
 	SDL_QueryTexture(cTexture, NULL, NULL, &cRect->w, &cRect->h);
-	cRect->w *= sx;
-	cRect->h *= sy;
+	cRect->w *= (int)std::round(sx);
+	cRect->h *= (int)std::round(sy);
 }

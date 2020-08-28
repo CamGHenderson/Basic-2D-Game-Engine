@@ -1,5 +1,6 @@
 #include"Engine.h"
 
+#include<iostream>
 
 class Game : public Engine
 {
@@ -10,6 +11,8 @@ private:
 	Tile* grassTile[5000];
 	Tile* treeTile[3000];
 	Mix_Chunk* stepSound = NULL;
+	TTF_Font* font = NULL;
+	UIComponent* text = NULL;
 	double frameTime = 0;
 	bool moving = false;
 	bool playerRendered = false;
@@ -34,7 +37,7 @@ public:
 	}
 
 	bool onCreate() override
-	{	
+	{
 		grassTexture = loadTexture("Resources/Textures/GrassTile.png");
 		if (!grassTexture)
 			return false;
@@ -65,7 +68,12 @@ public:
 		stepSound = loadSound("Resources/Audio/step.wav");
 		if (!stepSound)
 			return false;
+		setSoundVolume(stepSound, 12);
 
+		font = loadFont("Resources/Fonts/FreeMono.ttf", 24);
+		if (!font)
+			return false;
+		text = new UIComponent(loadTextureFromText("2D Game Engine Test", font, Color(0, 0, 0)), 5, 5);
 		camera = new Camera();
 		setCamera(camera);
 		camera->setBounds(0, 0, (float)(100 * grassTile[0]->getRect()->w - getWidth()), (float)(50 * grassTile[0]->getRect()->h - getHeight()));
@@ -79,7 +87,7 @@ public:
 
 		playerRendered = false;
 
-		if (getKeyDown(SDL_SCANCODE_D) && !getKeyDown(SDL_SCANCODE_A))
+		if (getKeyDown(SDL_SCANCODE_D) || getController()->getLeftStickX() == 1 && !getKeyDown(SDL_SCANCODE_A))
 		{
 			player->move((float)(speed * getDeltaTime()), 0);
 			direction = Direction::right;
@@ -88,7 +96,7 @@ public:
 				player->setPosition(grassTile[5000 - 1]->getX() + grassTile[5000 - 1]->getRect()->w - (player->getSprite()->getAnimation()->getFrame().w * player->getScaleX()), player->getY());
 		}
 
-		if (getKeyDown(SDL_SCANCODE_A) && !getKeyDown(SDL_SCANCODE_D))
+		if (getKeyDown(SDL_SCANCODE_A) || getController()->getLeftStickX() == -1 && !getKeyDown(SDL_SCANCODE_D))
 		{
 			player->move(-(float)(speed * getDeltaTime()), 0);
 			direction = Direction::left;
@@ -97,7 +105,7 @@ public:
 				player->setPosition(0, player->getY());
 		}
 
-		if (getKeyDown(SDL_SCANCODE_W) && !getKeyDown(SDL_SCANCODE_S))
+		if (getKeyDown(SDL_SCANCODE_W) || getController()->getLeftStickY() == -1 && !getKeyDown(SDL_SCANCODE_S))
 		{
 			player->move(0, -(float)(speed * getDeltaTime()));
 			direction = Direction::up;
@@ -106,7 +114,7 @@ public:
 				player->setPosition(player->getX(), 0);
 		}
 
-		if (getKeyDown(SDL_SCANCODE_S) && !getKeyDown(SDL_SCANCODE_W))
+		if (getKeyDown(SDL_SCANCODE_S) || getController()->getLeftStickY() == 1 && !getKeyDown(SDL_SCANCODE_W))
 		{
 			player->move(0, (float)(speed * getDeltaTime()));
 			direction = Direction::down;
@@ -167,6 +175,12 @@ public:
 		for (int i = 0; i < 5000; i++)
 			render(grassTile[i]);
 
+		if (player->getY() == 0)
+		{
+			render(player);
+			playerRendered = true;
+		}
+
 		for (int i = 0; i < 3000; i++)
 		{
 			render(treeTile[i]);
@@ -177,6 +191,8 @@ public:
 			}
 		}
 
+		render(text);
+
 		return true;
 	}
 	
@@ -186,10 +202,9 @@ public:
 	}
 };
 
-
 int main(int argc, char* argv[]) 
 {
-	Game game;
-	game.run();
+	Game* game = new Game();
+	std::cout << game->run() << std::endl;
 	return 0;
 }
