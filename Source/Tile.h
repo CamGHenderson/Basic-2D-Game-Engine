@@ -12,6 +12,7 @@ private:
 public:
 	Tile(SDL_Texture* texture, float x, float y);
 	void move(float x, float y);
+	void setPosition(float x, float y);
 	float getX() { return tx; }
 	float getY() { return ty; }
 	void scale(float x, float y);

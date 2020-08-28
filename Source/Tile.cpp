@@ -23,6 +23,14 @@ void Tile::move(float x, float y)
 	tRect->y = (int)std::round(ty);
 }
 
+void Tile::setPosition(float x, float y)
+{
+	tx = x;
+	ty = y;
+	tRect->x = (int)std::round(tx);
+	tRect->y = (int)std::round(ty);
+}
+
 void Tile::scale(float x, float y)
 {
 	sx *= x;
